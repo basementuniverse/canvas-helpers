@@ -4,6 +4,8 @@ This is a collection of helper functions for drawing on an HTML5 Canvas.
 
 It's an unopinionated library that aims to reduce the amount of repetitive boilerplate in your rendering code. It doesn't wrap the entire Canvas API, and mostly everything is optional, so you can always fall back to native Canvas code when necessary.
 
+![Preview](preview.png)
+
 ## Installation
 
 ```bash
