@@ -1,0 +1,148 @@
+<style>
+
+canvas {
+  width: 800px;
+  height: 800px;
+  border: 1px solid black;
+  margin: 20px;
+}
+
+</style>
+<canvas></canvas>
+<script src="build/index.js"></script>
+<script>
+
+const canvas = document.querySelector('canvas');
+const context = canvas.getContext('2d');
+
+canvas.width = 800;
+canvas.height = 800;
+
+// Basic line examples
+line(context, { x: 100, y: 50 }, { x: 200, y: 50 }, {
+  strokeColor: { r: 255, g: 0, b: 0 },
+  lineWidth: 2,
+});
+
+line(context, { x: 100, y: 80 }, { x: 200, y: 80 }, {
+  strokeColor: { r: 0, g: 0, b: 255 },
+  lineStyle: 'dashed',
+});
+
+// Cross examples
+cross(context, { x: 300, y: 50 }, 20, {
+  strokeColor: { r: 0, g: 150, b: 0 },
+  lineWidth: 2,
+});
+
+cross(context, { x: 350, y: 50 }, 30, {
+  strokeColor: 'purple',
+  lineStyle: 'dotted',
+  crossStyle: '+',
+});
+
+// Arrow examples
+arrow(context, { x: 100, y: 150 }, { x: 200, y: 150 }, {
+  strokeColor: { r: 200, g: 100, b: 0 },
+  lineWidth: 2,
+  arrow: { type: 'caret', size: 10 },
+});
+
+arrow(context, { x: 100, y: 200 }, { x: 200, y: 180 }, {
+  strokeColor: 'green',
+  arrow: { type: 'chevron', size: 15 },
+});
+
+// Circle examples
+circle(context, { x: 300, y: 150 }, 30, {
+  fillColor: { r: 255, g: 200, b: 200 },
+  strokeColor: { r: 255, g: 0, b: 0 },
+  fill: true,
+  lineWidth: 2,
+});
+
+circle(context, { x: 400, y: 150 }, 40, {
+  gradient: {
+    type: 'radial',
+    start: { x: 400, y: 150 },
+    end: { x: 550, y: 150 },
+    colorStops: [
+      { color: { r: 255, g: 255, b: 0, a: 1 }, position: 0 },
+      { color: { r: 255, g: 0, b: 0, a: 1 }, position: 1 }
+    ]
+  },
+  fill: true,
+  stroke: true,
+  strokeColor: 'black',
+});
+
+// Rectangle examples
+rectangle(context, { x: 100, y: 250 }, { x: 100, y: 80 }, {
+  fillColor: { r: 200, g: 200, b: 255 },
+  strokeColor: { r: 0, g: 0, b: 255 },
+  fill: true,
+  lineWidth: 2,
+});
+
+rectangle(context, { x: 250, y: 250 }, { x: 120, y: 80 }, {
+  fillColor: 'lightgreen',
+  strokeColor: 'darkgreen',
+  fill: true,
+  rounded: true,
+  borderRadius: 10,
+});
+
+// Polygon example (pentagon)
+polygon(context, [
+  { x: 100, y: 400 },
+  { x: 140, y: 380 },
+  { x: 160, y: 420 },
+  { x: 120, y: 460 },
+  { x: 80, y: 420 }
+], {
+  fillColor: { r: 255, g: 200, b: 200 },
+  strokeColor: 'red',
+  fill: true,
+  lineWidth: 2,
+});
+
+// Path examples
+path(context, [
+  { x: 200, y: 400 },
+  { x: 250, y: 380 },
+  { x: 300, y: 420 },
+  { x: 350, y: 380 },
+  { x: 400, y: 400 }
+], {
+  strokeColor: 'blue',
+  lineWidth: 2,
+  pathType: 'linear',
+});
+
+path(context, [
+  { x: 200, y: 450 },
+  { x: 250, y: 430 },
+  { x: 300, y: 470 },
+  { x: 350, y: 430 },
+  { x: 400, y: 450 },
+], {
+  strokeColor: 'purple',
+  lineWidth: 2,
+  pathType: 'bezier',
+  bezierOrder: 4,
+});
+
+path(context, [
+  { x: 200, y: 500 },
+  { x: 250, y: 480 },
+  { x: 300, y: 520 },
+  { x: 350, y: 480 },
+  { x: 400, y: 500 },
+], {
+  strokeColor: 'green',
+  lineWidth: 2,
+  pathType: 'catmull-rom',
+  catmullRomTension: 0.5,
+});
+
+</script>

@@ -1,0 +1,28 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "target": "es2019",
+    "module": "commonjs",
+    "allowJs": false,
+    "declaration": true,
+    "declarationDir": "./build",
+    "outDir": "./build",
+    "rootDir": "./",
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": false,
+    "noImplicitReturns": true,
+    "esModuleInterop": true,
+    "inlineSourceMap": false,
+    "sourceMap": false
+  },
+  "include": ["index.ts"],
+  "exclude": ["node_modules", "build"]
+}
