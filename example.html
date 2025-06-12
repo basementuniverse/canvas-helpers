@@ -18,13 +18,24 @@ const context = canvas.getContext('2d');
 canvas.width = 800;
 canvas.height = 800;
 
+// withContext variants...
+const [
+  line2,
+  cross2,
+  arrow2,
+  circle2,
+  rectangle2,
+  polygon2,
+  path2,
+] = withContext(context, line, cross, arrow, circle, rectangle, polygon, path);
+
 // Basic line examples
 line(context, { x: 100, y: 50 }, { x: 200, y: 50 }, {
   strokeColor: { r: 255, g: 0, b: 0 },
   lineWidth: 2,
 });
 
-line(context, { x: 100, y: 80 }, { x: 200, y: 80 }, {
+line2({ x: 100, y: 80 }, { x: 200, y: 80 }, {
   strokeColor: { r: 0, g: 0, b: 255 },
   lineStyle: 'dashed',
 });
@@ -35,7 +46,7 @@ cross(context, { x: 300, y: 50 }, 20, {
   lineWidth: 2,
 });
 
-cross(context, { x: 350, y: 50 }, 30, {
+cross2({ x: 350, y: 50 }, 30, {
   strokeColor: 'purple',
   lineStyle: 'dotted',
   crossStyle: '+',
@@ -48,7 +59,7 @@ arrow(context, { x: 100, y: 150 }, { x: 200, y: 150 }, {
   arrow: { type: 'caret', size: 10 },
 });
 
-arrow(context, { x: 100, y: 200 }, { x: 200, y: 180 }, {
+arrow2({ x: 100, y: 200 }, { x: 200, y: 180 }, {
   strokeColor: 'green',
   arrow: { type: 'chevron', size: 15 },
 });
@@ -61,7 +72,7 @@ circle(context, { x: 300, y: 150 }, 30, {
   lineWidth: 2,
 });
 
-circle(context, { x: 400, y: 150 }, 40, {
+circle2({ x: 400, y: 150 }, 40, {
   gradient: {
     type: 'radial',
     start: { x: 400, y: 150 },
@@ -84,7 +95,7 @@ rectangle(context, { x: 100, y: 250 }, { x: 100, y: 80 }, {
   lineWidth: 2,
 });
 
-rectangle(context, { x: 250, y: 250 }, { x: 120, y: 80 }, {
+rectangle2({ x: 250, y: 250 }, { x: 120, y: 80 }, {
   fillColor: 'lightgreen',
   strokeColor: 'darkgreen',
   fill: true,
@@ -92,7 +103,7 @@ rectangle(context, { x: 250, y: 250 }, { x: 120, y: 80 }, {
   borderRadius: 10,
 });
 
-// Polygon example (pentagon)
+// Polygon examples
 polygon(context, [
   { x: 100, y: 400 },
   { x: 140, y: 380 },
@@ -104,6 +115,21 @@ polygon(context, [
   strokeColor: 'red',
   fill: true,
   lineWidth: 2,
+});
+
+polygon2([
+  { x: 100, y: 500 },
+  { x: 120, y: 500 },
+  { x: 120, y: 540 },
+  { x: 160, y: 540 },
+  { x: 160, y: 560 },
+  { x: 100, y: 560 }
+], {
+  fillColor: { r: 200, g: 200, b: 255 },
+  strokeColor: 'blue',
+  fill: true,
+  lineWidth: 4,
+  lineStyle: 'dotted',
 });
 
 // Path examples
@@ -132,7 +158,7 @@ path(context, [
   bezierOrder: 4,
 });
 
-path(context, [
+path2([
   { x: 200, y: 500 },
   { x: 250, y: 480 },
   { x: 300, y: 520 },

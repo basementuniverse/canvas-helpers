@@ -18,20 +18,27 @@ npm install @basementuniverse/canvas-helpers
 
 ```ts
 /**
- * Pass in a context and an array of functions that take a context as their
+ * Pass in a context and some number of functions that take a context as their
  * first argument, and return an array of functions that don't require the
  * context argument
+ *
+ * If only one function is passed, this will return a single function
  */
 function withContext(
   context: CanvasRenderingContext2D,
-  functions: ((context: CanvasRenderingContext2D, ...args: any[]) => void)[]
-): ((...args: any[]) => void)[];
+  ...functions: ((context: CanvasRenderingContext2D, ...args: any[]) => void)[]
+): ((...args: any[]) => void) | ((...args: any[]) => void)[];
 ```
 
 Example:
 
 ```ts
-import { withContext, line, rect } from '@basementuniverse/canvas-helpers';
+import {
+  withContext,
+  line,
+  rect,
+  circle,
+} from '@basementuniverse/canvas-helpers';
 
 const canvas = document.createElement('canvas');
 const context = canvas.getContext('2d');
@@ -40,6 +47,11 @@ const [
   lineWithContext,
   rectWithContext,
 ] = withContext(context, [line, rect]);
+
+const circleWithContext = withContext(context, circle);
+
+// These functions can now be called without the context argument...
+lineWithContext([10, 10], [100, 100]);
 ```
 
 ### `line`

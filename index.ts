@@ -1,4 +1,4 @@
-import { clamp } from '@basementuniverse/utils';
+import { clamp, dot } from '@basementuniverse/utils';
 import { mat, vec2 } from '@basementuniverse/vec';
 
 export type Color = {
@@ -209,6 +209,24 @@ const BEZIER_COEFFICIENTS: (t: number, order: 1 | 2 | 3) => number[] = (
     3: [t * t * t, t * t, t, 1],
   }[order]);
 
+const CATMULL_ROM_BASIS_FUNCTIONS: ((t: number, tension: number) => number)[] =
+  [
+    (t, tension) =>
+      -tension * Math.pow(t, 3) + 2 * tension * Math.pow(t, 2) - tension * t,
+    (t, tension) =>
+      (2 - tension) * Math.pow(t, 3) + (tension - 3) * Math.pow(t, 2) + 1,
+    (t, tension) =>
+      (tension - 2) * Math.pow(t, 3) +
+      (3 - 2 * tension) * Math.pow(t, 2) +
+      tension * t,
+    (t, tension) => tension * Math.pow(t, 3) - tension * Math.pow(t, 2),
+  ];
+
+const CATMULL_ROM_BASIS_VECTOR: (t: number, tension: number) => number[] = (
+  t,
+  tension
+) => CATMULL_ROM_BASIS_FUNCTIONS.map(f => f(t, tension));
+
 /**
  * Type guard to check if a value is a Color object
  */
@@ -297,19 +315,22 @@ function getStyle(style?: Partial<StyleOptions>): StyleOptions {
 }
 
 /**
- * Pass in a context and an array of functions that take a context as their
+ * Pass in a context and some number of functions that take a context as their
  * first argument, and return an array of functions that don't require the
  * context argument
+ *
+ * If only one function is passed, this will return a single function
  */
 export function withContext(
   context: CanvasRenderingContext2D,
-  functions: ((context: CanvasRenderingContext2D, ...args: any[]) => void)[]
-): ((...args: any[]) => void)[] {
-  return functions.map(f => {
+  ...functions: ((context: CanvasRenderingContext2D, ...args: any[]) => void)[]
+): ((...args: any[]) => void) | ((...args: any[]) => void)[] {
+  const result = functions.map(f => {
     return (...args: any[]) => {
       f(context, ...args);
     };
   });
+  return result.length === 1 ? result[0] : result;
 }
 
 /**
@@ -736,28 +757,24 @@ export function path(
     if (vertices.length >= 4) {
       context.moveTo(vertices[1].x, vertices[1].y);
 
-      // Catmull-Rom basis functions
-      const q1 = (t: number) =>
-        -tension * Math.pow(t, 3) + 2 * tension * Math.pow(t, 2) - tension * t;
-      const q2 = (t: number) =>
-        (2 - tension) * Math.pow(t, 3) + (tension - 3) * Math.pow(t, 2) + 1;
-      const q3 = (t: number) =>
-        (tension - 2) * Math.pow(t, 3) +
-        (3 - 2 * tension) * Math.pow(t, 2) +
-        tension * t;
-      const q4 = (t: number) =>
-        tension * Math.pow(t, 3) - tension * Math.pow(t, 2);
-
       // Draw curve segments
       for (let i = 1; i < vertices.length - 2; i++) {
-        const p1 = vertices[i - 1];
-        const p2 = vertices[i];
-        const p3 = vertices[i + 1];
-        const p4 = vertices[i + 2];
+        const points = [
+          vertices[i - 1],
+          vertices[i],
+          vertices[i + 1],
+          vertices[i + 2],
+        ];
 
         for (let t = 0; t <= 1; t += 0.01) {
-          const x = p1.x * q1(t) + p2.x * q2(t) + p3.x * q3(t) + p4.x * q4(t);
-          const y = p1.y * q1(t) + p2.y * q2(t) + p3.y * q3(t) + p4.y * q4(t);
+          const x = dot(
+            points.map(p => p.x),
+            CATMULL_ROM_BASIS_VECTOR(t, tension)
+          );
+          const y = dot(
+            points.map(p => p.y),
+            CATMULL_ROM_BASIS_VECTOR(t, tension)
+          );
           context.lineTo(x, y);
         }
       }

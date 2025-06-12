@@ -141,11 +141,13 @@ export type StyleOptions = {
     [key: string]: any;
 };
 /**
- * Pass in a context and an array of functions that take a context as their
+ * Pass in a context and some number of functions that take a context as their
  * first argument, and return an array of functions that don't require the
  * context argument
+ *
+ * If only one function is passed, this will return a single function
  */
-export declare function withContext(context: CanvasRenderingContext2D, functions: ((context: CanvasRenderingContext2D, ...args: any[]) => void)[]): ((...args: any[]) => void)[];
+export declare function withContext(context: CanvasRenderingContext2D, ...functions: ((context: CanvasRenderingContext2D, ...args: any[]) => void)[]): ((...args: any[]) => void) | ((...args: any[]) => void)[];
 /**
  * Draw a straight line segment between two points
  */
