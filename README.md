@@ -64,7 +64,7 @@ function line(
   context: CanvasRenderingContext2D,
   start: vec2,
   end: vec2,
-  style?: StyleOptions
+  style?: Partial<StyleOptions>
 ): void;
 ```
 
@@ -78,7 +78,7 @@ function cross(
   context: CanvasRenderingContext2D,
   position: vec2,
   size: number,
-  style?: StyleOptions
+  style?: Partial<StyleOptions>
 ): void;
 ```
 
@@ -96,7 +96,7 @@ function arrow(
   context: CanvasRenderingContext2D,
   start: vec2,
   end: vec2,
-  style?: StyleOptions
+  style?: Partial<StyleOptions>
 ): void;
 ```
 
@@ -110,7 +110,7 @@ function circle(
   context: CanvasRenderingContext2D,
   center: vec2,
   radius: number,
-  style?: StyleOptions
+  style?: Partial<StyleOptions>
 ): void;
 ```
 
@@ -124,7 +124,7 @@ function rectangle(
   context: CanvasRenderingContext2D,
   position: vec2,
   size: vec2,
-  style?: StyleOptions
+  style?: Partial<StyleOptions>
 ): void;
 ```
 
@@ -137,7 +137,7 @@ function rectangle(
 function polygon(
   context: CanvasRenderingContext2D,
   vertices: vec2[],
-  style?: StyleOptions
+  style?: Partial<StyleOptions>
 ): void;
 ```
 
@@ -150,7 +150,7 @@ function polygon(
 function path(
   context: CanvasRenderingContext2D,
   vertices: vec2[],
-  style?: StyleOptions
+  style?: Partial<StyleOptions>
 ): void;
 ```
 

@@ -308,7 +308,9 @@ function getStyle(style?: Partial<StyleOptions>): StyleOptions {
   return Object.assign({}, DEFAULT_STYLE_OPTIONS, {
     ...(style ?? {}),
     lineDash:
-      style?.lineStyle === undefined
+      style && style.lineDash !== undefined
+        ? style.lineDash
+        : style?.lineStyle === undefined
         ? []
         : DEFAULT_LINE_DASHES[style.lineStyle ?? 'solid'],
   });
@@ -340,7 +342,7 @@ export function line(
   context: CanvasRenderingContext2D,
   start: vec2,
   end: vec2,
-  style?: StyleOptions
+  style?: Partial<StyleOptions>
 ): void {
   context.save();
 
@@ -382,7 +384,7 @@ export function cross(
   context: CanvasRenderingContext2D,
   position: vec2,
   size: number,
-  style?: StyleOptions
+  style?: Partial<StyleOptions>
 ): void {
   context.save();
 
@@ -439,7 +441,7 @@ export function arrow(
   context: CanvasRenderingContext2D,
   start: vec2,
   end: vec2,
-  style?: StyleOptions
+  style?: Partial<StyleOptions>
 ): void {
   context.save();
 
@@ -507,7 +509,7 @@ export function circle(
   context: CanvasRenderingContext2D,
   center: vec2,
   radius: number,
-  style?: StyleOptions
+  style?: Partial<StyleOptions>
 ): void {
   context.save();
 
@@ -561,7 +563,7 @@ export function rectangle(
   context: CanvasRenderingContext2D,
   position: vec2,
   size: vec2,
-  style?: StyleOptions
+  style?: Partial<StyleOptions>
 ): void {
   context.save();
 
@@ -624,7 +626,7 @@ export function rectangle(
 export function polygon(
   context: CanvasRenderingContext2D,
   vertices: vec2[],
-  style?: StyleOptions
+  style?: Partial<StyleOptions>
 ): void {
   if (vertices.length < 3) {
     return;
@@ -685,7 +687,7 @@ export function polygon(
 export function path(
   context: CanvasRenderingContext2D,
   vertices: vec2[],
-  style?: StyleOptions
+  style?: Partial<StyleOptions>
 ): void {
   if (vertices.length < 2) return;
 

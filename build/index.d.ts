@@ -151,11 +151,11 @@ export declare function withContext(context: CanvasRenderingContext2D, ...functi
 /**
  * Draw a straight line segment between two points
  */
-export declare function line(context: CanvasRenderingContext2D, start: vec2, end: vec2, style?: StyleOptions): void;
+export declare function line(context: CanvasRenderingContext2D, start: vec2, end: vec2, style?: Partial<StyleOptions>): void;
 /**
  * Draw a cross at a given position with a specified size
  */
-export declare function cross(context: CanvasRenderingContext2D, position: vec2, size: number, style?: StyleOptions): void;
+export declare function cross(context: CanvasRenderingContext2D, position: vec2, size: number, style?: Partial<StyleOptions>): void;
 /**
  * Draw an arrow from a start point to an end point with an optional arrowhead
  * at the end
@@ -163,21 +163,21 @@ export declare function cross(context: CanvasRenderingContext2D, position: vec2,
  * This function does not support batch drawing since it requires
  * beginning a new path for the arrowhead
  */
-export declare function arrow(context: CanvasRenderingContext2D, start: vec2, end: vec2, style?: StyleOptions): void;
+export declare function arrow(context: CanvasRenderingContext2D, start: vec2, end: vec2, style?: Partial<StyleOptions>): void;
 /**
  * Draw a circle at a specified center point with a given radius
  */
-export declare function circle(context: CanvasRenderingContext2D, center: vec2, radius: number, style?: StyleOptions): void;
+export declare function circle(context: CanvasRenderingContext2D, center: vec2, radius: number, style?: Partial<StyleOptions>): void;
 /**
  * Draw a rectangle at a specified position with a given size
  */
-export declare function rectangle(context: CanvasRenderingContext2D, position: vec2, size: vec2, style?: StyleOptions): void;
+export declare function rectangle(context: CanvasRenderingContext2D, position: vec2, size: vec2, style?: Partial<StyleOptions>): void;
 /**
  * Draw a polygon defined by an array of vertices
  */
-export declare function polygon(context: CanvasRenderingContext2D, vertices: vec2[], style?: StyleOptions): void;
+export declare function polygon(context: CanvasRenderingContext2D, vertices: vec2[], style?: Partial<StyleOptions>): void;
 /**
  * Draw a path defined by an array of vertices
  */
-export declare function path(context: CanvasRenderingContext2D, vertices: vec2[], style?: StyleOptions): void;
+export declare function path(context: CanvasRenderingContext2D, vertices: vec2[], style?: Partial<StyleOptions>): void;
 export {};
