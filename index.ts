@@ -126,7 +126,7 @@ export type StyleOptions = {
      *
      * This can be a predefined type, or a function for drawing custom arrowheads
      */
-    type:
+    type?:
       | 'caret' // Triangle pointing in the direction of the line
       | 'chevron' // V-shaped arrowhead
       | ((context: CanvasRenderingContext2D, ...args: any[]) => void);
@@ -134,7 +134,7 @@ export type StyleOptions = {
     /**
      * The size of the arrowhead in pixels
      */
-    size: number;
+    size?: number;
   } | null;
 
   /**
@@ -471,7 +471,7 @@ export function arrow(
     const arrowSize = actualStyle.arrow.size ?? 10;
     const halfSize = arrowSize / 2;
     const angle = vec2.rad(vec2.sub(end, start));
-    const arrowType = actualStyle.arrow.type;
+    const arrowType = actualStyle.arrow.type ?? 'caret';
 
     context.save();
     context.translate(end.x, end.y);
