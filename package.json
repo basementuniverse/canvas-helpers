@@ -1,6 +1,6 @@
 {
   "name": "@basementuniverse/canvas-helpers",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "A collection of helpers for working with HTML5 canvas",
   "main": "build/index.js",
   "types": "build/index.d.ts",
