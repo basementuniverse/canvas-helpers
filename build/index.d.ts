@@ -155,12 +155,14 @@ export type StyleOptions = {
          * - 'stretch': Stretch the image to fill the entire rectangle (may distort)
          * - 'contain': Scale the image to fit entirely within the rectangle,
          *   preserving aspect ratio
+         * - 'fill': Scale the image to completely cover the rectangle,
+         *   preserving aspect ratio (the image might overflow the rectangle)
          * - 'fit-x': Scale the image to fit the width of the rectangle,
          *   preserving aspect ratio (the image might overflow the rectangle height)
          * - 'fit-y': Scale the image to fit the height of the rectangle,
          *   preserving aspect ratio (the image might overflow the rectangle width)
          */
-        fillMode?: 'center' | 'stretch' | 'contain' | 'fit-x' | 'fit-y';
+        fillMode?: 'center' | 'stretch' | 'contain' | 'fill' | 'fit-x' | 'fit-y';
         /**
          * If true, and the image is larger than the rectangle, clip the image to
          * the bounds of the rectangle

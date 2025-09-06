@@ -1,7 +1,7 @@
 <style>
 
 canvas {
-  width: 800px;
+  width: 1200px;
   height: 800px;
   border: 1px solid black;
   margin: 20px;
@@ -15,7 +15,7 @@ canvas {
 const canvas = document.querySelector('canvas');
 const context = canvas.getContext('2d');
 
-canvas.width = 800;
+canvas.width = 1200;
 canvas.height = 800;
 
 // withContext variants...
@@ -251,6 +251,43 @@ exampleImage.onload = () => {
         offset: { x: -0.5, y: -0.5 },
         offsetRelative: true,
         opacity: 0.5,
+      },
+    }
+  );
+
+  rectangle2(
+    { x: 800, y: 50 },
+    { x: 200, y: 150 },
+    {
+      stroke: true,
+      strokeColor: 'blue',
+    }
+  );
+
+  image2(
+    exampleImage,
+    { x: 800, y: 50 },
+    { x: 200, y: 150 },
+    {
+      rounded: true,
+      borderRadius: 20,
+      image: {
+        fillMode: 'fill',
+        clip: true,
+      },
+    }
+  );
+
+  image2(
+    exampleImage,
+    { x: 800, y: 250 },
+    { x: 200, y: 150 },
+    {
+      stroke: true,
+      strokeColor: 'red',
+      lineWidth: 3,
+      image: {
+        fillMode: 'fill',
       },
     }
   );

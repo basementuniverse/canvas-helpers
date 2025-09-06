@@ -193,12 +193,14 @@ export type StyleOptions = {
      * - 'stretch': Stretch the image to fill the entire rectangle (may distort)
      * - 'contain': Scale the image to fit entirely within the rectangle,
      *   preserving aspect ratio
+     * - 'fill': Scale the image to completely cover the rectangle,
+     *   preserving aspect ratio (the image might overflow the rectangle)
      * - 'fit-x': Scale the image to fit the width of the rectangle,
      *   preserving aspect ratio (the image might overflow the rectangle height)
      * - 'fit-y': Scale the image to fit the height of the rectangle,
      *   preserving aspect ratio (the image might overflow the rectangle width)
      */
-    fillMode?: 'center' | 'stretch' | 'contain' | 'fit-x' | 'fit-y';
+    fillMode?: 'center' | 'stretch' | 'contain' | 'fill' | 'fit-x' | 'fit-y';
 
     /**
      * If true, and the image is larger than the rectangle, clip the image to
@@ -976,58 +978,67 @@ export function image(
     sy = 0,
     sw = imageWidth,
     sh = imageHeight;
-  let drawWidth = imageWidth,
-    drawHeight = imageHeight;
+  let dw = imageWidth,
+    dh = imageHeight;
 
   // Compute scale for fill modes
   switch (imageOptions.fillMode) {
     case 'stretch':
-      drawWidth = rectangleWidth;
-      drawHeight = rectangleHeight;
+      dw = rectangleWidth;
+      dh = rectangleHeight;
       break;
     case 'contain': {
       const scale = Math.min(
         rectangleWidth / imageWidth,
         rectangleHeight / imageHeight
       );
-      drawWidth = imageWidth * scale;
-      drawHeight = imageHeight * scale;
+      dw = imageWidth * scale;
+      dh = imageHeight * scale;
+      break;
+    }
+    case 'fill': {
+      const scale = Math.max(
+        rectangleWidth / imageWidth,
+        rectangleHeight / imageHeight
+      );
+      dw = imageWidth * scale;
+      dh = imageHeight * scale;
       break;
     }
     case 'fit-x': {
       const scale = rectangleWidth / imageWidth;
-      drawWidth = imageWidth * scale;
-      drawHeight = imageHeight * scale;
+      dw = imageWidth * scale;
+      dh = imageHeight * scale;
       break;
     }
     case 'fit-y': {
       const scale = rectangleHeight / imageHeight;
-      drawWidth = imageWidth * scale;
-      drawHeight = imageHeight * scale;
+      dw = imageWidth * scale;
+      dh = imageHeight * scale;
       break;
     }
     case 'center':
     default:
-      drawWidth = imageWidth;
-      drawHeight = imageHeight;
+      dw = imageWidth;
+      dh = imageHeight;
       break;
   }
 
   // Apply scale option
   if (imageOptions.scale) {
     if (typeof imageOptions.scale === 'number') {
-      drawWidth *= imageOptions.scale;
-      drawHeight *= imageOptions.scale;
+      dw *= imageOptions.scale;
+      dh *= imageOptions.scale;
     } else {
-      drawWidth *= imageOptions.scale.x;
-      drawHeight *= imageOptions.scale.y;
+      dw *= imageOptions.scale.x;
+      dh *= imageOptions.scale.y;
     }
   }
 
   // Center image in rect for 'center', 'contain', 'fit-x', 'fit-y'
   if (imageOptions.fillMode !== 'stretch') {
-    dx += (rectangleWidth - drawWidth) / 2;
-    dy += (rectangleHeight - drawHeight) / 2;
+    dx += (rectangleWidth - dw) / 2;
+    dy += (rectangleHeight - dh) / 2;
   }
 
   // Apply offset
@@ -1046,10 +1057,37 @@ export function image(
     context.globalAlpha *= imageOptions.opacity;
   }
 
+  // Draw background rectangle if fill or stroke is requested
+  if (
+    (actualStyle.fill || actualStyle.stroke) &&
+    (actualStyle.fillColor !== null || actualStyle.strokeColor !== null)
+  ) {
+    // Only override anchor to top-left for background
+    const rectStyle: Partial<StyleOptions> = {
+      ...actualStyle,
+      rectangleAnchor: 'top-left',
+    };
+    rectangle(context, { x: dx, y: dy }, { x: dw, y: dh }, rectStyle);
+  }
+
   // Clip if requested
   if (imageOptions.clip && size) {
     context.beginPath();
-    context.rect(position.x, position.y, rectangleWidth, rectangleHeight);
+
+    // Support rounded corners if style.rounded and style.borderRadius is set
+    const rounded = actualStyle.rounded ?? false;
+    const borderRadius = actualStyle.borderRadius ?? 0;
+    if (rounded && borderRadius > 0) {
+      context.roundRect(
+        position.x,
+        position.y,
+        rectangleWidth,
+        rectangleHeight,
+        borderRadius
+      );
+    } else {
+      context.rect(position.x, position.y, rectangleWidth, rectangleHeight);
+    }
     context.clip();
   }
 
@@ -1077,7 +1115,7 @@ export function image(
     }
   } else {
     // Draw the image
-    context.drawImage(image, sx, sy, sw, sh, dx, dy, drawWidth, drawHeight);
+    context.drawImage(image, sx, sy, sw, sh, dx, dy, dw, dh);
   }
 
   context.restore();
