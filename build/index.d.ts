@@ -106,11 +106,11 @@ export type StyleOptions = {
          *
          * This can be a predefined type, or a function for drawing custom arrowheads
          */
-        type: 'caret' | 'chevron' | ((context: CanvasRenderingContext2D, ...args: any[]) => void);
+        type?: 'caret' | 'chevron' | ((context: CanvasRenderingContext2D, ...args: any[]) => void);
         /**
          * The size of the arrowhead in pixels
          */
-        size: number;
+        size?: number;
     } | null;
     /**
      * When stroking a path, the type of interpolation to use for curves
@@ -135,6 +135,69 @@ export type StyleOptions = {
      * - 1.0: Chordal spline (more angular)
      */
     catmullRomTension?: number;
+    /**
+     * When drawing rectangles, which point the position refers to
+     *
+     * Default is 'top-left'
+     */
+    rectangleAnchor?: 'top-left' | 'top-center' | 'top-right' | 'center-left' | 'center' | 'center-right' | 'bottom-left' | 'bottom-center' | 'bottom-right';
+    /**
+     * Options for drawing images
+     */
+    image?: {
+        /**
+         * How to scale the image to fit the specified rectangle
+         *
+         * If a rectangle size is not specified, we draw the image at its natural
+         * size (same as 'center' mode)
+         *
+         * - 'center': Draw the image at its natural size, centered in the rectangle
+         * - 'stretch': Stretch the image to fill the entire rectangle (may distort)
+         * - 'contain': Scale the image to fit entirely within the rectangle,
+         *   preserving aspect ratio
+         * - 'fit-x': Scale the image to fit the width of the rectangle,
+         *   preserving aspect ratio (the image might overflow the rectangle height)
+         * - 'fit-y': Scale the image to fit the height of the rectangle,
+         *   preserving aspect ratio (the image might overflow the rectangle width)
+         */
+        fillMode?: 'center' | 'stretch' | 'contain' | 'fit-x' | 'fit-y';
+        /**
+         * If true, and the image is larger than the rectangle, clip the image to
+         * the bounds of the rectangle
+         *
+         * Ignored if a rectangle size is not specified
+         */
+        clip?: boolean;
+        /**
+         * How to repeat the image if the rectangle is larger than the image size
+         *
+         * Ignored if a rectangle size is not specified
+         */
+        repeatMode?: 'repeat' | 'repeat-x' | 'repeat-y' | 'no-repeat';
+        /**
+         * The opacity of the image (0-1)
+         */
+        opacity?: number;
+        /**
+         * The scale to draw the image at (calculated after applying the fillMode)
+         *
+         * This can be a single number to scale uniformly, or a vec2 for
+         * non-uniform scaling
+         */
+        scale?: number | vec2;
+        /**
+         * Translation offset to apply when drawing the image
+         *
+         * This is calculated after applying the fillMode and scale
+         */
+        offset?: vec2;
+        /**
+         * If true, the offset is treated as relative to the rectangle size (e.g.
+         * an offset of { x: 0.5, y: 0.5 } moves the image down and right by half
+         * the rectangle's size)
+         */
+        offsetRelative?: boolean;
+    };
     /**
      * Additional custom properties for future extensions
      */
@@ -180,4 +243,9 @@ export declare function polygon(context: CanvasRenderingContext2D, vertices: vec
  * Draw a path defined by an array of vertices
  */
 export declare function path(context: CanvasRenderingContext2D, vertices: vec2[], style?: Partial<StyleOptions>): void;
+/**
+ * Draw an image at a specified position, optionally scaling it to fit within
+ * a given rectangle
+ */
+export declare function image(context: CanvasRenderingContext2D, image: CanvasImageSource, position: vec2, size?: vec2, style?: Partial<StyleOptions>): void;
 export {};

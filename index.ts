@@ -164,6 +164,86 @@ export type StyleOptions = {
   catmullRomTension?: number;
 
   /**
+   * When drawing rectangles, which point the position refers to
+   *
+   * Default is 'top-left'
+   */
+  rectangleAnchor?:
+    | 'top-left'
+    | 'top-center'
+    | 'top-right'
+    | 'center-left'
+    | 'center'
+    | 'center-right'
+    | 'bottom-left'
+    | 'bottom-center'
+    | 'bottom-right';
+
+  /**
+   * Options for drawing images
+   */
+  image?: {
+    /**
+     * How to scale the image to fit the specified rectangle
+     *
+     * If a rectangle size is not specified, we draw the image at its natural
+     * size (same as 'center' mode)
+     *
+     * - 'center': Draw the image at its natural size, centered in the rectangle
+     * - 'stretch': Stretch the image to fill the entire rectangle (may distort)
+     * - 'contain': Scale the image to fit entirely within the rectangle,
+     *   preserving aspect ratio
+     * - 'fit-x': Scale the image to fit the width of the rectangle,
+     *   preserving aspect ratio (the image might overflow the rectangle height)
+     * - 'fit-y': Scale the image to fit the height of the rectangle,
+     *   preserving aspect ratio (the image might overflow the rectangle width)
+     */
+    fillMode?: 'center' | 'stretch' | 'contain' | 'fit-x' | 'fit-y';
+
+    /**
+     * If true, and the image is larger than the rectangle, clip the image to
+     * the bounds of the rectangle
+     *
+     * Ignored if a rectangle size is not specified
+     */
+    clip?: boolean;
+
+    /**
+     * How to repeat the image if the rectangle is larger than the image size
+     *
+     * Ignored if a rectangle size is not specified
+     */
+    repeatMode?: 'repeat' | 'repeat-x' | 'repeat-y' | 'no-repeat';
+
+    /**
+     * The opacity of the image (0-1)
+     */
+    opacity?: number;
+
+    /**
+     * The scale to draw the image at (calculated after applying the fillMode)
+     *
+     * This can be a single number to scale uniformly, or a vec2 for
+     * non-uniform scaling
+     */
+    scale?: number | vec2;
+
+    /**
+     * Translation offset to apply when drawing the image
+     *
+     * This is calculated after applying the fillMode and scale
+     */
+    offset?: vec2;
+
+    /**
+     * If true, the offset is treated as relative to the rectangle size (e.g.
+     * an offset of { x: 0.5, y: 0.5 } moves the image down and right by half
+     * the rectangle's size)
+     */
+    offsetRelative?: boolean;
+  };
+
+  /**
    * Additional custom properties for future extensions
    */
   [key: string]: any;
@@ -185,12 +265,26 @@ const DEFAULT_STYLE_OPTIONS: StyleOptions = {
     type: 'caret',
     size: 5,
   },
+  pathType: 'linear',
+  bezierOrder: 3,
+  catmullRomTension: 0.5,
+  rectangleAnchor: 'top-left',
 };
 
 const DEFAULT_LINE_DASHES: Record<LineStyle, number[]> = {
   solid: [],
   dashed: [5, 5],
   dotted: [1, 3],
+};
+
+const DEFAULT_IMAGE_OPTIONS: StyleOptions['image'] = {
+  fillMode: 'center',
+  clip: false,
+  repeatMode: 'no-repeat',
+  opacity: 1,
+  scale: 1,
+  offset: vec2(0, 0),
+  offsetRelative: false,
 };
 
 const BEZIER_MATRICES: Record<number, mat> = {
@@ -313,6 +407,8 @@ function getStyle(style?: Partial<StyleOptions>): StyleOptions {
         : style?.lineStyle === undefined
         ? []
         : DEFAULT_LINE_DASHES[style.lineStyle ?? 'solid'],
+    image:
+      style && style.image !== undefined ? style.image : DEFAULT_IMAGE_OPTIONS,
   });
 }
 
@@ -594,17 +690,62 @@ export function rectangle(
     context.beginPath();
   }
 
+  // Calculate anchor offset
+  let anchor = actualStyle.rectangleAnchor || 'top-left';
+  let offsetX = 0,
+    offsetY = 0;
+  switch (anchor) {
+    case 'top-left':
+      offsetX = 0;
+      offsetY = 0;
+      break;
+    case 'top-center':
+      offsetX = -size.x / 2;
+      offsetY = 0;
+      break;
+    case 'top-right':
+      offsetX = -size.x;
+      offsetY = 0;
+      break;
+    case 'center-left':
+      offsetX = 0;
+      offsetY = -size.y / 2;
+      break;
+    case 'center':
+      offsetX = -size.x / 2;
+      offsetY = -size.y / 2;
+      break;
+    case 'center-right':
+      offsetX = -size.x;
+      offsetY = -size.y / 2;
+      break;
+    case 'bottom-left':
+      offsetX = 0;
+      offsetY = -size.y;
+      break;
+    case 'bottom-center':
+      offsetX = -size.x / 2;
+      offsetY = -size.y;
+      break;
+    case 'bottom-right':
+      offsetX = -size.x;
+      offsetY = -size.y;
+      break;
+  }
+  const actualX = position.x + offsetX;
+  const actualY = position.y + offsetY;
+
   // Draw the rectangle
   if (actualStyle.rounded) {
     context.roundRect(
-      position.x,
-      position.y,
+      actualX,
+      actualY,
       size.x,
       size.y,
       actualStyle.borderRadius ?? 1
     );
   } else {
-    context.rect(position.x, position.y, size.x, size.y);
+    context.rect(actualX, actualY, size.x, size.y);
   }
 
   // Fill the rectangle if required
@@ -711,7 +852,7 @@ export function path(
   }
 
   // Handle different path types
-  const pathType = actualStyle.pathType ?? 'linear';
+  const pathType = actualStyle.pathType || 'linear';
 
   if (pathType === 'linear') {
     // Simple linear path
@@ -792,6 +933,151 @@ export function path(
   // Stroke the path if required
   if (actualStyle.stroke && !actualStyle.batch) {
     context.stroke();
+  }
+
+  context.restore();
+}
+
+/**
+ * Draw an image at a specified position, optionally scaling it to fit within
+ * a given rectangle
+ */
+export function image(
+  context: CanvasRenderingContext2D,
+  image: CanvasImageSource,
+  position: vec2,
+  size?: vec2,
+  style?: Partial<StyleOptions>
+): void {
+  // Get merged style options
+  const actualStyle = getStyle(style);
+  const imageOptions = {
+    ...DEFAULT_IMAGE_OPTIONS,
+    ...(actualStyle.image ?? {}),
+  };
+
+  // Get natural image size
+  let imageWidth: number, imageHeight: number;
+  if ('width' in image && 'height' in image) {
+    imageWidth = (image as any).width;
+    imageHeight = (image as any).height;
+  } else {
+    throw new Error('Cannot determine image size');
+  }
+
+  // Rectangle to draw in
+  const rectangleWidth = size?.x ?? imageWidth;
+  const rectangleHeight = size?.y ?? imageHeight;
+  let dx = position.x,
+    dy = position.y;
+
+  // Compute draw size and position based on fillMode
+  let sx = 0,
+    sy = 0,
+    sw = imageWidth,
+    sh = imageHeight;
+  let drawWidth = imageWidth,
+    drawHeight = imageHeight;
+
+  // Compute scale for fill modes
+  switch (imageOptions.fillMode) {
+    case 'stretch':
+      drawWidth = rectangleWidth;
+      drawHeight = rectangleHeight;
+      break;
+    case 'contain': {
+      const scale = Math.min(
+        rectangleWidth / imageWidth,
+        rectangleHeight / imageHeight
+      );
+      drawWidth = imageWidth * scale;
+      drawHeight = imageHeight * scale;
+      break;
+    }
+    case 'fit-x': {
+      const scale = rectangleWidth / imageWidth;
+      drawWidth = imageWidth * scale;
+      drawHeight = imageHeight * scale;
+      break;
+    }
+    case 'fit-y': {
+      const scale = rectangleHeight / imageHeight;
+      drawWidth = imageWidth * scale;
+      drawHeight = imageHeight * scale;
+      break;
+    }
+    case 'center':
+    default:
+      drawWidth = imageWidth;
+      drawHeight = imageHeight;
+      break;
+  }
+
+  // Apply scale option
+  if (imageOptions.scale) {
+    if (typeof imageOptions.scale === 'number') {
+      drawWidth *= imageOptions.scale;
+      drawHeight *= imageOptions.scale;
+    } else {
+      drawWidth *= imageOptions.scale.x;
+      drawHeight *= imageOptions.scale.y;
+    }
+  }
+
+  // Center image in rect for 'center', 'contain', 'fit-x', 'fit-y'
+  if (imageOptions.fillMode !== 'stretch') {
+    dx += (rectangleWidth - drawWidth) / 2;
+    dy += (rectangleHeight - drawHeight) / 2;
+  }
+
+  // Apply offset
+  if (imageOptions.offset) {
+    if (imageOptions.offsetRelative) {
+      dx += imageOptions.offset.x * rectangleWidth;
+      dy += imageOptions.offset.y * rectangleHeight;
+    } else {
+      dx += imageOptions.offset.x;
+      dy += imageOptions.offset.y;
+    }
+  }
+
+  context.save();
+  if (imageOptions.opacity !== undefined && imageOptions.opacity < 1) {
+    context.globalAlpha *= imageOptions.opacity;
+  }
+
+  // Clip if requested
+  if (imageOptions.clip && size) {
+    context.beginPath();
+    context.rect(position.x, position.y, rectangleWidth, rectangleHeight);
+    context.clip();
+  }
+
+  // Handle repeat modes
+  if (
+    imageOptions.repeatMode &&
+    imageOptions.repeatMode !== 'no-repeat' &&
+    size
+  ) {
+    // CanvasPattern repetition string: 'repeat', 'repeat-x', 'repeat-y', 'no-repeat'
+    const pattern = context.createPattern(
+      image,
+      imageOptions.repeatMode as
+        | 'repeat'
+        | 'repeat-x'
+        | 'repeat-y'
+        | 'no-repeat'
+    );
+    if (pattern) {
+      context.save();
+      context.translate(position.x, position.y);
+      context.fillStyle = pattern;
+      context.fillRect(0, 0, rectangleWidth, rectangleHeight);
+      context.restore();
+    }
+  } else {
+    // Draw the image
+    context.drawImage(image, sx, sy, sw, sh, dx, dy, drawWidth, drawHeight);
   }
 
   context.restore();

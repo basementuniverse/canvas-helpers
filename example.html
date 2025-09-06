@@ -27,7 +27,8 @@ const [
   rectangle2,
   polygon2,
   path2,
-] = withContext(context, line, cross, arrow, circle, rectangle, polygon, path);
+  image2,
+] = withContext(context, line, cross, arrow, circle, rectangle, polygon, path, image);
 
 // Basic line examples
 line(context, { x: 100, y: 50 }, { x: 200, y: 50 }, {
@@ -170,5 +171,89 @@ path2([
   pathType: 'catmull-rom',
   catmullRomTension: 0.5,
 });
+
+const exampleImage = new Image();
+exampleImage.src = 'example.png';
+exampleImage.onload = () => {
+  image(
+    context,
+    exampleImage,
+    { x: 500, y: 50 }
+  );
+
+  image2(
+    exampleImage,
+    { x: 650, y: 50 },
+    undefined,
+    {
+      image: {
+        scale: 0.5,
+      },
+    }
+  );
+
+  rectangle2(
+    { x: 500, y: 200 },
+    { x: 200, y: 150 },
+    {
+      stroke: true,
+      strokeColor: 'blue',
+    }
+  );
+
+  image2(
+    exampleImage,
+    { x: 500, y: 200 },
+    { x: 200, y: 150 },
+    {
+      image: {
+        fillMode: 'contain',
+      },
+    }
+  );
+
+  rectangle2(
+    { x: 500, y: 400 },
+    { x: 200, y: 150 },
+    {
+      stroke: true,
+      strokeColor: 'blue',
+    }
+  );
+
+  image2(
+    exampleImage,
+    { x: 500, y: 400 },
+    { x: 200, y: 150 },
+    {
+      image: {
+        fillMode: 'fit-x',
+        scale: 0.9,
+      },
+    }
+  );
+
+  cross2(
+    { x: 600, y: 700 },
+    50,
+    {
+      strokeColor: 'red',
+      lineWidth: 3,
+    }
+  );
+
+  image2(
+    exampleImage,
+    { x: 600, y: 700 },
+    undefined,
+    {
+      image: {
+        offset: { x: -0.5, y: -0.5 },
+        offsetRelative: true,
+        opacity: 0.5,
+      },
+    }
+  );
+};
 
 </script>
