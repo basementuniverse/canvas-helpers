@@ -1108,9 +1108,25 @@ export function image(
     );
     if (pattern) {
       context.save();
-      context.translate(position.x, position.y);
+
+      // Calculate the scale factors
+      const scaleX = dw / imageWidth;
+      const scaleY = dh / imageHeight;
+
+      // Apply transformation: translate to pattern origin, then scale
+      context.translate(dx, dy);
+      context.scale(scaleX, scaleY);
+
       context.fillStyle = pattern;
-      context.fillRect(0, 0, rectangleWidth, rectangleHeight);
+
+      // Fill the rectangle in the scaled coordinate system
+      // We need to divide by the scale to get back to pattern coordinates
+      const patternWidth = rectangleWidth / scaleX;
+      const patternHeight = rectangleHeight / scaleY;
+      const patternX = (position.x - dx) / scaleX;
+      const patternY = (position.y - dy) / scaleY;
+
+      context.fillRect(patternX, patternY, patternWidth, patternHeight);
       context.restore();
     }
   } else {

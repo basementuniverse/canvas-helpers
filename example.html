@@ -2,7 +2,7 @@
 
 canvas {
   width: 1200px;
-  height: 800px;
+  height: 900px;
   border: 1px solid black;
   margin: 20px;
 }
@@ -16,7 +16,7 @@ const canvas = document.querySelector('canvas');
 const context = canvas.getContext('2d');
 
 canvas.width = 1200;
-canvas.height = 800;
+canvas.height = 900;
 
 // withContext variants...
 const [
@@ -288,6 +288,27 @@ exampleImage.onload = () => {
       lineWidth: 3,
       image: {
         fillMode: 'fill',
+      },
+    }
+  );
+
+  rectangle2(
+    { x: 750, y: 500 },
+    { x: 400, y: 200 },
+    {
+      stroke: true,
+      strokeColor: 'blue',
+    }
+  );
+
+  image2(
+    exampleImage,
+    { x: 750, y: 500 },
+    { x: 400, y: 200 },
+    {
+      image: {
+        fillMode: 'fit-y',
+        repeatMode: 'repeat-x',
       },
     }
   );
