@@ -170,6 +170,20 @@ export function image(
 ): void;
 ```
 
+**Performance Note**: When using `repeatMode` options other than 'no-repeat', patterns are automatically cached for better performance. The same pattern will be reused for subsequent calls with the same image and repeat mode, avoiding the overhead of recreating canvas patterns each frame.
+
+### `clearPatternCache`
+
+```ts
+/**
+ * Clear the pattern cache for a specific image, or clear the entire cache
+ * if no image is specified. Useful for memory management.
+ */
+export function clearPatternCache(image?: CanvasImageSource): void;
+```
+
+Use this function to manually clear cached patterns when images are no longer needed, helping with memory management in long-running applications.
+
 ## Types
 
 ```ts

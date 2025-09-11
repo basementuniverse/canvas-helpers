@@ -8,6 +8,51 @@ export type Color = {
   a?: number;
 };
 
+// Pattern cache for performance optimization
+// WeakMap keyed by image source, with values being Maps keyed by repeat mode
+let patternCache = new WeakMap<CanvasImageSource, Map<string, CanvasPattern>>();
+
+/**
+ * Get or create a cached pattern for the given image and repeat mode
+ */
+function getCachedPattern(
+  context: CanvasRenderingContext2D,
+  image: CanvasImageSource,
+  repeatMode: 'repeat' | 'repeat-x' | 'repeat-y' | 'no-repeat'
+): CanvasPattern | null {
+  // Check if we have any patterns cached for this image
+  let imagePatterns = patternCache.get(image);
+  if (!imagePatterns) {
+    imagePatterns = new Map();
+    patternCache.set(image, imagePatterns);
+  }
+
+  // Check if we have a pattern cached for this repeat mode
+  let pattern = imagePatterns.get(repeatMode);
+  if (!pattern) {
+    // Create and cache the pattern
+    const newPattern = context.createPattern(image, repeatMode);
+    if (newPattern) {
+      imagePatterns.set(repeatMode, newPattern);
+      pattern = newPattern;
+    }
+  }
+
+  return pattern || null;
+}
+
+/**
+ * Clear the pattern cache for a specific image, or clear the entire cache
+ * if no image is specified. Useful for memory management.
+ */
+export function clearPatternCache(image?: CanvasImageSource): void {
+  if (image) {
+    patternCache.delete(image);
+  } else {
+    patternCache = new WeakMap<CanvasImageSource, Map<string, CanvasPattern>>();
+  }
+}
+
 type LineStyle = 'solid' | 'dashed' | 'dotted';
 
 export type StyleOptions = {
@@ -1097,8 +1142,9 @@ export function image(
     imageOptions.repeatMode !== 'no-repeat' &&
     size
   ) {
-    // CanvasPattern repetition string: 'repeat', 'repeat-x', 'repeat-y', 'no-repeat'
-    const pattern = context.createPattern(
+    // Use cached pattern for better performance
+    const pattern = getCachedPattern(
+      context,
       image,
       imageOptions.repeatMode as
         | 'repeat'

@@ -5,6 +5,11 @@ export type Color = {
     b: number;
     a?: number;
 };
+/**
+ * Clear the pattern cache for a specific image, or clear the entire cache
+ * if no image is specified. Useful for memory management.
+ */
+export declare function clearPatternCache(image?: CanvasImageSource): void;
 type LineStyle = 'solid' | 'dashed' | 'dotted';
 export type StyleOptions = {
     /**
